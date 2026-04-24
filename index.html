@@ -1,0 +1,888 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Energiewende Baukasten</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+/* ── DARK (default) ─────────────────────────────── */
+:root {
+  --bg:        #070b13;
+  --surf1:     #0c1220;
+  --surf2:     #111929;
+  --surf3:     #172135;
+  --surf4:     #1e2d42;
+  --border:    #1d2e46;
+  --border2:   #263d58;
+  --text:      #d8e8f8;
+  --text-dim:  #6a8bab;
+  --text-muted:#334f6a;
+
+  --solar:     #e9b84a;
+  --wind:      #48c9e0;
+  --growth:    #45d48c;
+  --heat:      #f07848;
+  --purple:    #9d7eef;
+  --red:       #f06464;
+
+  --solar-bg:  #1c1508;
+  --wind-bg:   #051520;
+  --growth-bg: #051a10;
+  --heat-bg:   #1c0d04;
+  --purple-bg: #130d22;
+  --red-bg:    #1a0808;
+
+  --dot-color:   #1d2e4640;
+  --glow-color:  #0d3a2820;
+  --panel-shadow: 0 4px 40px #00000060;
+  --card-shadow:  0 8px 32px #00000050;
+  --inset-hi:    inset 0 1px 0 #ffffff08;
+  --btn-text:    #0a0600;
+  --solar-hover: #f0c660;
+  --add-btn-bg:  var(--solar);
+}
+
+/* ── LIGHT — warm solar daylight ───────────────── */
+@media (prefers-color-scheme: light) { :root {
+  --bg:        #f5efe4;
+  --surf1:     #fdfaf4;
+  --surf2:     #f0e8d8;
+  --surf3:     #e6dcc8;
+  --surf4:     #d8ccb8;
+  --border:    #ddd0bc;
+  --border2:   #c4b49c;
+  --text:      #18120a;
+  --text-dim:  #5a4a36;
+  --text-muted:#8a7a68;
+
+  --solar:     #a86810;
+  --wind:      #146e82;
+  --growth:    #1a7a48;
+  --heat:      #b84010;
+  --purple:    #5a3aaa;
+  --red:       #b02020;
+
+  --solar-bg:  #fcefd8;
+  --wind-bg:   #d8eef4;
+  --growth-bg: #d4f0e2;
+  --heat-bg:   #fce4d4;
+  --purple-bg: #eadcf8;
+  --red-bg:    #fce0dc;
+
+  --dot-color:   #a89478a0;
+  --glow-color:  #e8980830;
+  --panel-shadow: 0 2px 24px #a8886840, 0 1px 4px #a8886820;
+  --card-shadow:  0 4px 20px #a0886030, 0 1px 4px #a0886018;
+  --inset-hi:    inset 0 1px 0 #ffffffb0;
+  --btn-text:    #ffffff;
+  --solar-hover: #8a5208;
+  --add-btn-bg:  var(--solar);
+} }
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: 'DM Sans', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  overflow-x: hidden;
+  transition: background 0.3s, color 0.3s;
+}
+
+/* dot-grid background */
+body::before {
+  content: '';
+  position: fixed; inset: 0;
+  background-image: radial-gradient(circle, var(--dot-color) 1px, transparent 1px);
+  background-size: 28px 28px;
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* radial glow behind header */
+body::after {
+  content: '';
+  position: fixed;
+  top: -120px; left: 50%; transform: translateX(-50%);
+  width: 600px; height: 400px;
+  background: radial-gradient(ellipse, var(--glow-color) 0%, transparent 70%);
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* ── SVG THEME VARS ──────────────────────────────── */
+:root {
+  --svg-grid:      #1e2d46;
+  --svg-grid-soft: #1e2d4670;
+}
+@media (prefers-color-scheme: light) { :root {
+  --svg-grid:      #c8b8a0;
+  --svg-grid-soft: #c8b8a070;
+} }
+
+
+.app {
+  position: relative; z-index: 1;
+  max-width: 640px;
+  margin: 0 auto;
+  padding: 0 18px 100px;
+}
+
+/* ── HEADER ─────────────────────────────────────── */
+.header {
+  padding: 52px 0 40px;
+  text-align: center;
+  position: relative;
+}
+.header-eyebrow {
+  display: inline-flex; align-items: center; gap: 8px;
+  font-size: 10px; font-weight: 600; letter-spacing: 3.5px;
+  text-transform: uppercase; color: var(--growth);
+  margin-bottom: 18px;
+}
+.header-eyebrow::before, .header-eyebrow::after {
+  content: ''; width: 24px; height: 1px; background: var(--growth); opacity: 0.5;
+}
+.header h1 {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: clamp(28px, 6vw, 40px);
+  font-weight: 700;
+  line-height: 1.1;
+  letter-spacing: -0.02em;
+  color: var(--text);
+}
+.header h1 span {
+  display: block;
+  background: linear-gradient(135deg, var(--solar) 0%, var(--growth) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+.header-sub {
+  margin-top: 14px;
+  font-size: 13px;
+  color: var(--text-dim);
+  line-height: 1.7;
+  max-width: 380px;
+  margin-left: auto; margin-right: auto;
+}
+
+/* ── SCORE PANEL ─────────────────────────────────── */
+.score-panel {
+  background: var(--surf1);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  padding: 24px;
+  margin: 0 0 10px;
+  position: sticky;
+  top: 10px;
+  z-index: 50;
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 20px;
+  align-items: center;
+  backdrop-filter: blur(16px);
+  box-shadow: var(--panel-shadow), var(--inset-hi);
+}
+
+/* trilemma radar */
+.trilemma-svg-wrap { flex-shrink: 0; }
+.tri-labels {
+  display: flex; flex-direction: column; gap: 0;
+  margin-top: 4px;
+}
+.tri-label-row {
+  display: flex; align-items: center; gap: 6px;
+  font-size: 9px; font-weight: 600; letter-spacing: 1px;
+  text-transform: uppercase; color: var(--text-muted);
+  padding: 3px 0;
+}
+.tri-dot { width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; }
+
+.score-right {
+  display: flex; flex-direction: column; gap: 12px;
+}
+.score-total-row {
+  display: flex; align-items: flex-end; gap: 4px;
+}
+.score-number {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 56px;
+  font-weight: 700;
+  line-height: 1;
+  letter-spacing: -0.04em;
+  transition: color 0.4s;
+}
+.score-denom {
+  font-family: 'DM Mono', monospace;
+  font-size: 16px;
+  color: var(--text-muted);
+  padding-bottom: 6px;
+}
+.score-label {
+  font-size: 10px; letter-spacing: 2px; text-transform: uppercase;
+  color: var(--text-muted); margin-bottom: -8px;
+}
+
+.tri-bars { display: flex; flex-direction: column; gap: 8px; }
+.tri-bar-row { display: grid; grid-template-columns: 80px 1fr 28px; align-items: center; gap: 8px; }
+.tri-bar-name { font-size: 10px; color: var(--text-dim); text-align: right; }
+.tri-track { height: 4px; background: var(--surf3); border-radius: 2px; overflow: hidden; }
+.tri-fill { height: 100%; border-radius: 2px; transition: width 0.5s cubic-bezier(0.4,0,0.2,1); }
+.tri-bar-val {
+  font-family: 'DM Mono', monospace;
+  font-size: 10px; font-weight: 500;
+  text-align: right;
+}
+
+.deck-count {
+  font-size: 11px; color: var(--text-muted);
+  font-family: 'DM Mono', monospace;
+  text-align: right;
+}
+
+/* ── DECK AREA ───────────────────────────────────── */
+.deck-section { margin: 20px 0 8px; }
+.section-header {
+  display: flex; align-items: center; justify-content: space-between;
+  margin-bottom: 10px;
+}
+.section-eyebrow {
+  font-size: 9px; font-weight: 700; letter-spacing: 3px;
+  text-transform: uppercase; color: var(--text-muted);
+}
+.deck-slots {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 6px;
+}
+.deck-slot {
+  aspect-ratio: 2/3;
+  border-radius: 10px;
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  position: relative; overflow: hidden;
+  transition: all 0.2s;
+}
+.deck-slot.empty {
+  background: var(--surf2);
+  border: 1.5px dashed var(--border2);
+}
+.deck-slot.filled {
+  cursor: pointer;
+  border: 1.5px solid;
+}
+.deck-slot.filled:hover { transform: translateY(-3px); filter: brightness(1.15); }
+.slot-icon { font-size: 20px; }
+.slot-name {
+  font-size: 7px; color: var(--text-dim);
+  margin-top: 4px; text-align: center;
+  line-height: 1.2; padding: 0 3px;
+  font-weight: 500;
+}
+.slot-remove {
+  position: absolute; top: 3px; right: 3px;
+  width: 14px; height: 14px;
+  background: color-mix(in srgb, var(--text) 15%, transparent);
+  border-radius: 50%;
+  font-size: 9px; color: var(--text-dim);
+  display: none; align-items: center; justify-content: center;
+}
+.deck-slot.filled:hover .slot-remove { display: flex; }
+
+/* ── WARNINGS ────────────────────────────────────── */
+.warnings-area { display: flex; flex-direction: column; gap: 6px; margin: 12px 0; }
+.warning {
+  display: flex; align-items: flex-start; gap: 10px;
+  padding: 11px 14px;
+  border-radius: 10px;
+  border: 1px solid;
+  font-size: 12px; line-height: 1.55;
+  animation: fadeSlide 0.25s ease;
+}
+.warn-icon { font-size: 14px; flex-shrink: 0; margin-top: 1px; }
+@keyframes fadeSlide {
+  from { opacity: 0; transform: translateY(-6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ── CATEGORY SECTION ────────────────────────────── */
+.cat-header {
+  display: flex; align-items: center; gap: 10px;
+  margin: 32px 0 12px;
+}
+.cat-line { flex: 1; height: 1px; background: var(--border); }
+.cat-badge {
+  font-size: 9px; font-weight: 700; letter-spacing: 2px;
+  text-transform: uppercase;
+  padding: 4px 10px; border-radius: 4px;
+  border: 1px solid;
+}
+
+/* ── CARD GRID ───────────────────────────────────── */
+.card-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+
+.tech-card {
+  background: var(--surf1);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  cursor: pointer;
+  transition: all 0.15s;
+  position: relative;
+  overflow: hidden;
+}
+.tech-card::before {
+  content: '';
+  position: absolute; top: 0; left: 0; right: 0;
+  height: 3px;
+  transition: opacity 0.2s;
+}
+.tech-card:hover:not(.in-deck) {
+  border-color: var(--border2);
+  transform: translateY(-2px);
+  box-shadow: var(--card-shadow);
+}
+.tech-card.in-deck { opacity: 0.25; cursor: default; pointer-events: none; }
+.tech-card.expanded { grid-column: 1 / -1; }
+
+.card-inner { padding: 14px; }
+.card-top {
+  display: flex; justify-content: space-between; align-items: flex-start;
+  margin-bottom: 10px;
+}
+.card-icon { font-size: 26px; line-height: 1; }
+.card-badge {
+  font-size: 8px; font-weight: 700; letter-spacing: 1px;
+  text-transform: uppercase; padding: 3px 7px; border-radius: 4px; border: 1px solid;
+}
+.card-name {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 14px; font-weight: 600;
+  color: var(--text); margin-bottom: 2px;
+  line-height: 1.25;
+}
+.card-subtitle { font-size: 10px; color: var(--text-muted); margin-bottom: 10px; line-height: 1.4; }
+
+.card-chips { display: flex; flex-wrap: wrap; gap: 4px; }
+.chip {
+  font-size: 9px; font-weight: 600; padding: 3px 7px;
+  border-radius: 4px; display: flex; align-items: center; gap: 3px;
+  font-family: 'DM Mono', monospace; letter-spacing: 0.3px;
+}
+
+/* ── EXPANDED DETAIL ─────────────────────────────── */
+.card-detail {
+  border-top: 1px solid var(--border);
+  padding: 16px 14px 14px;
+  animation: fadeSlide 0.2s ease;
+}
+.card-desc {
+  font-size: 12px; color: var(--text-dim); line-height: 1.7;
+  margin-bottom: 14px;
+}
+.data-grid {
+  display: grid; grid-template-columns: 1fr 1fr;
+  gap: 6px; margin-bottom: 12px;
+}
+.data-cell {
+  background: var(--surf3);
+  border-radius: 8px; padding: 10px;
+}
+.data-cell-label { font-size: 9px; color: var(--text-muted); letter-spacing: 1px; text-transform: uppercase; margin-bottom: 3px; }
+.data-cell-val {
+  font-family: 'DM Mono', monospace;
+  font-size: 12px; font-weight: 500; color: var(--text);
+}
+.card-source {
+  font-size: 10px; color: var(--text-muted);
+  font-style: italic; margin-bottom: 12px;
+  padding: 8px; background: var(--surf2); border-radius: 6px;
+}
+.add-btn {
+  width: 100%; padding: 12px;
+  background: var(--solar);
+  color: var(--btn-text);
+  border: none; border-radius: 8px;
+  font-size: 13px; font-weight: 700;
+  cursor: pointer; font-family: 'Space Grotesk', sans-serif;
+  transition: all 0.15s;
+  letter-spacing: 0.3px;
+}
+.add-btn:hover:not(:disabled) { background: var(--solar-hover); transform: translateY(-1px); }
+.add-btn:disabled {
+  background: var(--surf3); color: var(--text-muted); cursor: default; transform: none;
+}
+
+/* ── INFO BOX ────────────────────────────────────── */
+.info-box {
+  background: var(--surf1);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 20px;
+  margin: 32px 0 0;
+}
+.info-box-title {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 14px; font-weight: 600;
+  margin-bottom: 8px;
+  display: flex; align-items: center; gap: 8px;
+}
+.info-box-title::before {
+  content: '';
+  width: 3px; height: 14px;
+  background: var(--growth); border-radius: 2px; flex-shrink: 0;
+}
+.info-box p { font-size: 12px; color: var(--text-dim); line-height: 1.75; }
+.info-box .src { font-size: 10px; color: var(--text-muted); margin-top: 8px; font-style: italic; }
+
+/* ── FOOTER ──────────────────────────────────────── */
+.footer {
+  text-align: center; padding: 36px 0 16px;
+  font-size: 10px; color: var(--text-muted);
+  line-height: 2;
+  letter-spacing: 0.5px;
+}
+.footer a { color: var(--text-dim); text-decoration: none; }
+.footer a:hover { color: var(--solar); }
+
+@media (max-width: 480px) {
+  .score-panel { grid-template-columns: 1fr; gap: 14px; }
+  .trilemma-svg-wrap { display: flex; justify-content: center; }
+  .header h1 { font-size: 26px; }
+  .score-number { font-size: 44px; }
+  .deck-slots { grid-template-columns: repeat(6, 1fr); }
+}
+</style>
+</head>
+<body>
+<div class="app" id="app"></div>
+
+<script>
+/* ═══════════════════════════════════════════════════════════════
+   DATA — sourced from:
+   • Fraunhofer ISE "Stromgestehungskosten" (Juli 2024)
+   • IPCC AR5/AR6 lifecycle GHG emission medians
+   • Spickzettel Energiewende
+   • UBA Emissionsbilanz erneuerbarer Energien
+═══════════════════════════════════════════════════════════════ */
+const CARDS = [
+  { id:"pv_dach",     name:"PV Dachanlage",       icon:"☀️",  type:"erzeugung",
+    leistung:"~400 W/Modul", lcoe_min:4.9,  lcoe_max:14.1, lcoe_unit:"ct/kWh",
+    co2_lifecycle:26,  volllaststunden:"950–1.280 h/a",
+    flexibel:false, variabel:true, speicher:false,
+    desc:"Photovoltaikmodule auf Hausdächern. Ein Standardmodul liefert ca. 400 W Leistung. Die Stromgestehungskosten liegen 2024 unter 15 ct/kWh und fallen weiter – PV ist damit eine der günstigsten Stromerzeugungsformen überhaupt.",
+    source:"Leistung: Spickzettel; LCOE: Fraunhofer ISE 2024; CO₂: IPCC AR5 Median",
+    score_nachhaltigkeit:95, score_stabilitaet:20, score_wirtschaftlichkeit:90 },
+
+  { id:"pv_frei",     name:"PV Freifläche",        icon:"🌤️", type:"erzeugung",
+    leistung:"bis 200 MW/Park", lcoe_min:4.1, lcoe_max:7.2, lcoe_unit:"ct/kWh",
+    co2_lifecycle:26, volllaststunden:"950–1.280 h/a",
+    flexibel:false, variabel:true, speicher:false,
+    desc:"Großflächige Solarparks sind 2024 die günstigste Form der Stromerzeugung in Deutschland mit LCOE von 4,1–7,2 ct/kWh. Sie benötigen jedoch Fläche und erzeugen nur tagsüber Strom.",
+    source:"LCOE: Fraunhofer ISE 2024; CO₂: IPCC AR5 Median",
+    score_nachhaltigkeit:95, score_stabilitaet:20, score_wirtschaftlichkeit:95 },
+
+  { id:"wind_on",     name:"Wind Onshore",         icon:"🌬️", type:"erzeugung",
+    leistung:"bis 5 MW", lcoe_min:4.1, lcoe_max:10.4, lcoe_unit:"ct/kWh",
+    co2_lifecycle:11, volllaststunden:"1.800–3.200 h/a",
+    flexibel:false, variabel:true, speicher:false,
+    desc:"Windturbinen an Land mit bis zu 5 MW Leistung. Zusammen mit Freiflächen-PV die kostengünstigste Erzeugungsform. Erreichbare Volllaststunden hängen stark vom Standort ab – Nord vs. Süd.",
+    source:"Leistung: Spickzettel; LCOE: Fraunhofer ISE 2024; CO₂: IPCC AR5 Median",
+    score_nachhaltigkeit:98, score_stabilitaet:30, score_wirtschaftlichkeit:90 },
+
+  { id:"wind_off",    name:"Wind Offshore",        icon:"🌊", type:"erzeugung",
+    leistung:"bis 15 MW", lcoe_min:7.4, lcoe_max:14.4, lcoe_unit:"ct/kWh",
+    co2_lifecycle:12, volllaststunden:"3.200–4.500 h/a",
+    flexibel:false, variabel:true, speicher:false,
+    desc:"Windturbinen auf See mit bis zu 15 MW Leistung. Höhere Volllaststunden als Onshore, aber auch höhere Kosten durch Netzanbindung und Wartung auf See.",
+    source:"Leistung: Spickzettel; LCOE: Fraunhofer ISE 2024; CO₂: IPCC AR5 Median",
+    score_nachhaltigkeit:97, score_stabilitaet:45, score_wirtschaftlichkeit:70 },
+
+  { id:"biomasse",    name:"Biomasse",             icon:"🌿", type:"erzeugung",
+    leistung:"20–400 MW", lcoe_min:8.4, lcoe_max:20.1, lcoe_unit:"ct/kWh",
+    co2_lifecycle:230, volllaststunden:"5.000–7.000 h/a",
+    flexibel:true, variabel:false, speicher:false,
+    desc:"Verwertet organische Materialien zur Energieerzeugung. Große CO₂-Bandbreite je nach Substrat. Entscheidender Vorteil: steuerbar und dauerhaft verfügbar – eine der wenigen regelbaren EE-Quellen.",
+    source:"Spickzettel; LCOE: Fraunhofer ISE 2024; CO₂: IPCC AR5 (hohe Varianz)",
+    score_nachhaltigkeit:50, score_stabilitaet:85, score_wirtschaftlichkeit:45 },
+
+  { id:"wasserkraft", name:"Wasserkraft",          icon:"💧", type:"erzeugung",
+    leistung:"bis 1.000 MW", lcoe_min:4.0, lcoe_max:12.0, lcoe_unit:"ct/kWh",
+    co2_lifecycle:24, volllaststunden:"4.000–6.000 h/a",
+    flexibel:true, variabel:false, speicher:false,
+    desc:"Laufwasser- und Pumpspeicherkraftwerke mit bis zu 1.000 MW. Dauerhaft verfügbar und steuerbar. In Deutschland ist das Ausbaupotenzial allerdings weitgehend ausgeschöpft.",
+    source:"Leistung: Spickzettel; CO₂: IPCC AR5 Median",
+    score_nachhaltigkeit:90, score_stabilitaet:90, score_wirtschaftlichkeit:80 },
+
+  { id:"gas",         name:"Gaskraftwerk (GuD)",   icon:"🔥", type:"erzeugung",
+    leistung:"bis 1.000 MW", lcoe_min:11.0, lcoe_max:23.5, lcoe_unit:"ct/kWh",
+    co2_lifecycle:490, volllaststunden:"2.000–6.000 h/a",
+    flexibel:true, variabel:false, speicher:false,
+    desc:"Erdgas-GuD-Kraftwerke sind hochflexibel und gelten als Backup für Dunkelflauten. Grenzkosten durch Gaspreise und CO₂-Zertifikate hoch. Politisch umstritten: CDU/SPD setzen auf CCS, Grüne warnen vor fossilem Lock-In.",
+    source:"Leistung: Spickzettel; LCOE: Fraunhofer ISE 2024 (inkl. CO₂); CO₂: IPCC AR5",
+    score_nachhaltigkeit:15, score_stabilitaet:95, score_wirtschaftlichkeit:40 },
+
+  { id:"geothermie",  name:"Tiefengeothermie",     icon:"🌋", type:"erzeugung",
+    leistung:"5–50 MW", lcoe_min:10.0, lcoe_max:20.0, lcoe_unit:"ct/kWh",
+    co2_lifecycle:38, volllaststunden:"7.000–8.000 h/a",
+    flexibel:false, variabel:false, speicher:false,
+    desc:"Nutzt Erdwärme aus bis zu 5 km Tiefe. Dauerhaft verfügbar mit sehr hohen Volllaststunden, aber hohe Investitionskosten und geologisches Risiko. Kann ganze Stadtviertel über Wärmenetze versorgen.",
+    source:"Spickzettel (3°C/100m); CO₂: IPCC AR5 Median",
+    score_nachhaltigkeit:85, score_stabilitaet:90, score_wirtschaftlichkeit:45 },
+
+  { id:"batterie",    name:"Batteriespeicher",     icon:"🔋", type:"speicher",
+    leistung:"1–500 MW", lcoe_min:6.0, lcoe_max:22.5, lcoe_unit:"ct/kWh",
+    co2_lifecycle:0, volllaststunden:"Stunden bis Tage",
+    flexibel:true, variabel:false, speicher:true,
+    desc:"Li-Ion Speicher für kurzfristige Schwankungen. DE hat ~12 GW installiert; bis 2030 werden 50–100 GW benötigt. PV+Batterie-Systeme sind bereits günstiger als konventionelle Kraftwerke.",
+    source:"Kapazität: Spickzettel; LCOE: Fraunhofer ISE 2024 (System PV+Batterie)",
+    score_nachhaltigkeit:80, score_stabilitaet:80, score_wirtschaftlichkeit:55 },
+
+  { id:"pump",        name:"Pumpspeicherkraftwerk",icon:"⛰️", type:"speicher",
+    leistung:"~1.000 MW", lcoe_min:5.0, lcoe_max:15.0, lcoe_unit:"ct/kWh",
+    co2_lifecycle:0, volllaststunden:"4–12 Stunden",
+    flexibel:true, variabel:false, speicher:true,
+    desc:"Großspeicher mit ~1.000 MW. Installierte Pumpspeicherkapazität in DE: ~40 GWh. Nutzt Höhenunterschiede – Wasser hochpumpen, bei Bedarf ablassen. Ausbaupotenzial in DE begrenzt.",
+    source:"Leistung: Spickzettel; Kapazität: Fraunhofer ISE Halbjahresbericht 2024",
+    score_nachhaltigkeit:85, score_stabilitaet:85, score_wirtschaftlichkeit:70 },
+
+  { id:"waermepumpe", name:"Wärmepumpe",           icon:"♨️", type:"waerme",
+    leistung:"5–50 kW", lcoe_min:6.0, lcoe_max:14.0, lcoe_unit:"ct/kWh_th",
+    co2_lifecycle:0, volllaststunden:"1.800–2.400 h/a",
+    flexibel:true, variabel:false, speicher:false,
+    desc:"Schlüsseltechnologie der Wärmewende. Nutzt Umgebungswärme und erzeugt pro kWh Strom ca. 3–5 kWh Wärme. Voraussetzung: Antriebsstrom aus erneuerbaren Quellen. Über die Hälfte aller Heizungen laufen noch mit Gas.",
+    source:"Spickzettel; COP-Werte: UBA",
+    score_nachhaltigkeit:90, score_stabilitaet:70, score_wirtschaftlichkeit:75 },
+
+  { id:"fernwaerme",  name:"Fernwärme / KWK",      icon:"🏠", type:"waerme",
+    leistung:"20–500 MW_th", lcoe_min:5.0, lcoe_max:12.0, lcoe_unit:"ct/kWh_th",
+    co2_lifecycle:15, volllaststunden:"4.000–6.000 h/a",
+    flexibel:true, variabel:false, speicher:false,
+    desc:"Kraft-Wärme-Kopplung erzeugt gleichzeitig Strom und Wärme mit hoher Effizienz. Fernwärmenetze verteilen die Wärme über isolierte Leitungen. Besonders sinnvoll in dicht besiedelten Gebieten.",
+    source:"Spickzettel; KWK-Effizienz: KWKG / UBA",
+    score_nachhaltigkeit:65, score_stabilitaet:80, score_wirtschaftlichkeit:80 },
+
+  { id:"sanierung",   name:"Serielles Sanieren",   icon:"🏗️", type:"waerme",
+    leistung:"30–80% Einsparung", lcoe_min:3.0, lcoe_max:8.0, lcoe_unit:"ct/kWh_th",
+    co2_lifecycle:-100, volllaststunden:"Dauerhaft",
+    flexibel:false, variabel:false, speicher:false,
+    desc:"Energetische Sanierung mit vorgefertigten Elementen. Reduziert Wärmeverluste um 30–80%. Schnellere Montage durch Vorfertigung. Die günstigste kWh ist die, die nicht gebraucht wird.",
+    source:"Spickzettel; Einsparpotenziale: dena",
+    score_nachhaltigkeit:95, score_stabilitaet:60, score_wirtschaftlichkeit:85 },
+
+  { id:"suffizienz",  name:"Suffizienz",           icon:"♻️", type:"suffizienz",
+    leistung:"Verbrauchsreduktion", lcoe_min:0, lcoe_max:0, lcoe_unit:"ct/kWh",
+    co2_lifecycle:-200, volllaststunden:"Dauerhaft",
+    flexibel:false, variabel:false, speicher:false,
+    desc:"Ressourcenverbrauch durch bewusstes Handeln reduzieren – mit weniger auskommen, ohne Lebensqualität zu mindern. Dimensionen: Dimensional, Cooperative, Usage, Organisational. Braucht kollektive statt individuelle Lösungen.",
+    source:"Spickzettel; Lage et al. 2023; Suffizienz-Dimensionen",
+    score_nachhaltigkeit:100, score_stabilitaet:50, score_wirtschaftlichkeit:100 },
+];
+
+const TYPE_META = {
+  erzeugung:  { label:"Erzeugung",  color:"var(--solar)",  bg:"var(--solar-bg)"  },
+  speicher:   { label:"Speicher",   color:"var(--wind)",   bg:"var(--wind-bg)"   },
+  waerme:     { label:"Wärme",      color:"var(--heat)",   bg:"var(--heat-bg)"   },
+  suffizienz: { label:"Suffizienz", color:"var(--purple)", bg:"var(--purple-bg)" },
+};
+
+// ── THEME TOGGLE ──────────────────────────────────
+
+const MAX_DECK = 6;
+let deck = [];
+let expandedCard = null;
+
+function addToDeck(id) {
+  if (deck.length >= MAX_DECK || deck.includes(id)) return;
+  deck.push(id);
+  expandedCard = null;
+  render();
+}
+function removeFromDeck(id) {
+  deck = deck.filter(d => d !== id);
+  render();
+}
+function toggleExpand(id) {
+  expandedCard = expandedCard === id ? null : id;
+  render();
+}
+
+/* ── SCORING ──────────────────────────────────────── */
+function computeScores() {
+  if (deck.length === 0) return { total:0, nachhaltigkeit:0, stabilitaet:0, wirtschaftlichkeit:0, warnings:[] };
+  const cards = deck.map(id => CARDS.find(c => c.id === id));
+  const n = cards.length;
+
+  let nach = cards.reduce((s,c) => s + c.score_nachhaltigkeit, 0) / n;
+  let stab = cards.reduce((s,c) => s + c.score_stabilitaet, 0) / n;
+  let wirt = cards.reduce((s,c) => s + c.score_wirtschaftlichkeit, 0) / n;
+
+  const types = [...new Set(cards.map(c => c.type))];
+  if (types.length >= 3) { nach += 5; stab += 5; wirt += 5; }
+  if (types.length >= 4) { nach += 5; stab += 5; }
+
+  const hasVariable = cards.some(c => c.variabel);
+  const hasSpeicher = cards.some(c => c.speicher);
+  const hasFlexible = cards.some(c => c.flexibel);
+  if (hasVariable && hasSpeicher)  stab += 15;
+  if (hasVariable && hasFlexible)  stab += 10;
+
+  const eCards = cards.filter(c => c.type === 'erzeugung');
+  const hasErzeugung = eCards.length > 0;
+  if (hasErzeugung && eCards.every(c => c.variabel) && !hasSpeicher && !hasFlexible) stab -= 20;
+  if (cards.find(c => c.id === 'gas')) nach -= 10;
+
+  nach = Math.min(100, Math.max(0, Math.round(nach)));
+  stab = Math.min(100, Math.max(0, Math.round(stab)));
+  wirt = Math.min(100, Math.max(0, Math.round(wirt)));
+  const total = Math.round(nach * 0.4 + stab * 0.35 + wirt * 0.25);
+
+  const warnings = [];
+  const allVarE = hasErzeugung && eCards.every(c => c.variabel);
+  const cm = (c, a) => `color-mix(in srgb, ${c} ${a}%, transparent)`;
+  if (allVarE && !hasSpeicher)
+    warnings.push({ icon:"⚠️", text:"Nur variable Erzeuger ohne Speicher – Dunkelflauten-Risiko! Bis 2030 werden 50–100 GW Speicher benötigt.", color:"var(--solar)",  bg:"var(--solar-bg)",  bc:cm("var(--solar)",30)  });
+  if (cards.find(c => c.id === 'gas') && !cards.some(c => c.id !== 'gas' && c.type === 'erzeugung'))
+    warnings.push({ icon:"🔥", text:"Nur fossile Erzeugung – hohe CO₂-Emissionen (~490 g/kWh). Risiko eines fossilen Lock-In.", color:"var(--red)",    bg:"var(--red-bg)",    bc:cm("var(--red)",30)    });
+  if (!cards.some(c => c.type === 'waerme') && n >= 3)
+    warnings.push({ icon:"💡", text:"Keine Wärmetechnologie – Wärme macht >50% des Energieverbrauchs aus. Die Wärmewende ist die größte ungelöste Aufgabe.", color:"var(--wind)",   bg:"var(--wind-bg)",   bc:cm("var(--wind)",30)   });
+  if (types.length >= 3 && hasSpeicher && hasVariable)
+    warnings.push({ icon:"🌱", text:"Diverser Mix mit Speicherabsicherung – auf dem Weg zum 80%-EE-Ziel 2030!", color:"var(--growth)", bg:"var(--growth-bg)", bc:cm("var(--growth)",30) });
+  if (cards.some(c => c.id === 'suffizienz'))
+    warnings.push({ icon:"♻️", text:"Suffizienz im Mix! Die sauberste Energie ist die, die gar nicht erst verbraucht wird.", color:"var(--purple)", bg:"var(--purple-bg)", bc:cm("var(--purple)",30) });
+
+  return { total, nachhaltigkeit:nach, stabilitaet:stab, wirtschaftlichkeit:wirt, warnings };
+}
+
+/* ── TRILEMMA SVG ─────────────────────────────────── */
+function trilemmaPoint(score, vx, vy, cx, cy) {
+  const t = score / 100;
+  return [cx + t * (vx - cx), cy + t * (vy - cy)];
+}
+function buildTrilemma(n, s, w) {
+  const cx = 60, cy = 63;
+  const vN = [60, 10], vS = [108, 93], vW = [12, 93];
+  const pN = trilemmaPoint(n, vN[0], vN[1], cx, cy);
+  const pS = trilemmaPoint(s, vS[0], vS[1], cx, cy);
+  const pW = trilemmaPoint(w, vW[0], vW[1], cx, cy);
+  const pp = `${pN[0].toFixed(1)},${pN[1].toFixed(1)} ${pS[0].toFixed(1)},${pS[1].toFixed(1)} ${pW[0].toFixed(1)},${pW[1].toFixed(1)}`;
+  const hasData = n > 0 || s > 0 || w > 0;
+  return `
+<svg viewBox="0 0 120 104" width="106" height="92" style="display:block;">
+  <polygon points="60,10 108,93 12,93" fill="none" style="stroke:var(--svg-grid);" stroke-width="1.2"/>
+  <polygon points="60,37 84,56 36,56" fill="none" style="stroke:var(--svg-grid-soft);" stroke-width="0.6" stroke-dasharray="3,3"/>
+  <line x1="${cx}" y1="${cy}" x2="60" y2="10" style="stroke:var(--svg-grid-soft);" stroke-width="0.6"/>
+  <line x1="${cx}" y1="${cy}" x2="108" y2="93" style="stroke:var(--svg-grid-soft);" stroke-width="0.6"/>
+  <line x1="${cx}" y1="${cy}" x2="12" y2="93" style="stroke:var(--svg-grid-soft);" stroke-width="0.6"/>
+  ${hasData ? `
+  <polygon points="${pp}" style="fill:color-mix(in srgb,var(--growth) 12%,transparent);stroke:var(--growth);" stroke-width="1.5" stroke-linejoin="round"/>
+  <circle cx="${pN[0].toFixed(1)}" cy="${pN[1].toFixed(1)}" r="2.5" style="fill:var(--growth);"/>
+  <circle cx="${pS[0].toFixed(1)}" cy="${pS[1].toFixed(1)}" r="2.5" style="fill:var(--wind);"/>
+  <circle cx="${pW[0].toFixed(1)}" cy="${pW[1].toFixed(1)}" r="2.5" style="fill:var(--solar);"/>
+  ` : ''}
+  <circle cx="60" cy="10" r="2" style="fill:var(--surf1);stroke:var(--growth);" stroke-width="1.2"/>
+  <circle cx="108" cy="93" r="2" style="fill:var(--surf1);stroke:var(--wind);" stroke-width="1.2"/>
+  <circle cx="12" cy="93" r="2" style="fill:var(--surf1);stroke:var(--solar);" stroke-width="1.2"/>
+</svg>`;
+}
+
+/* ── CO2 CHIP PARAMS ─────────────────────────────── */
+function co2Params(co2) {
+  if (co2 < 0)   return { label:`${Math.abs(co2)} g gespart`, color:"var(--growth)", bg:"var(--growth-bg)" };
+  if (co2 === 0) return { label:"0 g direkt",                 color:"var(--growth)", bg:"var(--growth-bg)" };
+  if (co2 < 50)  return { label:`${co2} g`,                  color:"var(--growth)", bg:"var(--growth-bg)" };
+  if (co2 < 250) return { label:`${co2} g`,                  color:"var(--solar)",  bg:"var(--solar-bg)"  };
+  return               { label:`${co2} g`,                   color:"var(--red)",    bg:"var(--red-bg)"    };
+}
+
+/* ── RENDER ──────────────────────────────────────── */
+function render() {
+  const scores = computeScores();
+  const app = document.getElementById('app');
+
+  const totalColor = scores.total >= 70 ? 'var(--growth)' : scores.total >= 40 ? 'var(--solar)' : 'var(--red)';
+  const triSvg = buildTrilemma(scores.nachhaltigkeit, scores.stabilitaet, scores.wirtschaftlichkeit);
+
+  /* Deck slots */
+  let slotsHtml = '';
+  for (let i = 0; i < MAX_DECK; i++) {
+    if (i < deck.length) {
+      const card = CARDS.find(c => c.id === deck[i]);
+      const tm = TYPE_META[card.type];
+      slotsHtml += `<div class="deck-slot filled" style="background:${tm.bg}; border-color:${tm.color}50;" onclick="removeFromDeck('${card.id}')">
+        <span class="slot-remove">×</span>
+        <span class="slot-icon">${card.icon}</span>
+        <span class="slot-name">${card.name}</span>
+      </div>`;
+    } else {
+      slotsHtml += `<div class="deck-slot empty"></div>`;
+    }
+  }
+
+  /* Warnings */
+  const warningsHtml = scores.warnings.map(w =>
+    `<div class="warning" style="background:${w.bg}; color:${w.color}; border-color:${w.bc};">
+      <span class="warn-icon">${w.icon}</span><span>${w.text}</span>
+    </div>`
+  ).join('');
+
+  /* Cards */
+  const sections = [
+    { type:'erzeugung',  label:'Stromerzeugung' },
+    { type:'speicher',   label:'Speicher' },
+    { type:'waerme',     label:'Wärme & Effizienz' },
+    { type:'suffizienz', label:'Suffizienz' },
+  ];
+
+  let cardsHtml = '';
+  for (const sec of sections) {
+    const tm = TYPE_META[sec.type];
+    cardsHtml += `
+      <div class="cat-header">
+        <div class="cat-line"></div>
+        <div class="cat-badge" style="color:${tm.color}; background:${tm.bg}; border-color:${tm.color}30;">${sec.label}</div>
+        <div class="cat-line"></div>
+      </div>
+      <div class="card-grid">`;
+
+    for (const card of CARDS.filter(c => c.type === sec.type)) {
+      const inDeck = deck.includes(card.id);
+      const isExpanded = expandedCard === card.id;
+      const co2 = co2Params(card.co2_lifecycle);
+      const tm2 = TYPE_META[card.type];
+
+      let detailHtml = '';
+      if (isExpanded) {
+        detailHtml = `<div class="card-detail">
+          <p class="card-desc">${card.desc}</p>
+          <div class="data-grid">
+            <div class="data-cell">
+              <div class="data-cell-label">Leistung</div>
+              <div class="data-cell-val">${card.leistung}</div>
+            </div>
+            <div class="data-cell">
+              <div class="data-cell-label">Volllaststunden</div>
+              <div class="data-cell-val">${card.volllaststunden}</div>
+            </div>
+            <div class="data-cell">
+              <div class="data-cell-label">LCOE 2024</div>
+              <div class="data-cell-val">${card.lcoe_min > 0 ? card.lcoe_min+'–'+card.lcoe_max+' '+card.lcoe_unit : 'keine Erzeugung'}</div>
+            </div>
+            <div class="data-cell">
+              <div class="data-cell-label">CO₂ Lifecycle</div>
+              <div class="data-cell-val" style="color:${co2.color};">${co2.label}/kWh</div>
+            </div>
+          </div>
+          <div class="card-source">📎 ${card.source}</div>
+          <button class="add-btn" onclick="event.stopPropagation(); addToDeck('${card.id}')" ${inDeck || deck.length >= MAX_DECK ? 'disabled' : ''}>
+            ${inDeck ? 'Bereits im Energiemix' : deck.length >= MAX_DECK ? 'Mix voll (max. 6)' : '+ Zum Energiemix hinzufügen'}
+          </button>
+        </div>`;
+      }
+
+      cardsHtml += `<div class="tech-card ${inDeck?'in-deck':''} ${isExpanded?'expanded':''}" onclick="toggleExpand('${card.id}')" style="--card-color:${tm2.color};">
+        <div style="height:3px; background:${tm2.color}; opacity:${inDeck?0.2:1};"></div>
+        <div class="card-inner">
+          <div class="card-top">
+            <span class="card-icon">${card.icon}</span>
+            <span class="card-badge" style="color:${tm2.color}; background:${tm2.bg}; border-color:${tm2.color}30;">${tm2.label}</span>
+          </div>
+          <div class="card-name">${card.name}</div>
+          <div class="card-subtitle">${card.leistung}${card.lcoe_min > 0 ? ' · '+card.lcoe_min+'–'+card.lcoe_max+' '+card.lcoe_unit : ''}</div>
+          <div class="card-chips">
+            <span class="chip" style="background:${co2.bg}; color:${co2.color};">CO₂ ${co2.label}</span>
+            ${card.flexibel ? `<span class="chip" style="background:var(--wind-bg); color:var(--wind);">steuerbar</span>` : ''}
+            ${card.variabel ? `<span class="chip" style="background:var(--purple-bg); color:var(--purple);">variabel</span>` : ''}
+            ${card.speicher ? `<span class="chip" style="background:var(--wind-bg); color:var(--wind);">Speicher</span>` : ''}
+          </div>
+        </div>
+        ${detailHtml}
+      </div>`;
+    }
+    cardsHtml += `</div>`;
+  }
+
+  app.innerHTML = `
+    <div class="header">
+      <div class="header-eyebrow">Interaktiver Energieplaner</div>
+      <h1>Energiewende<span>Baukasten</span></h1>
+      <p class="header-sub">Kombiniere bis zu 6 Technologien zu deinem persönlichen Energiemix.<br>Alle Daten aus Forschung und Praxis.</p>
+    </div>
+
+    <div class="score-panel">
+      <div class="trilemma-svg-wrap">
+        ${triSvg}
+        <div class="tri-labels">
+          <div class="tri-label-row"><span class="tri-dot" style="background:var(--growth);"></span>Nachhaltigkeit</div>
+          <div class="tri-label-row"><span class="tri-dot" style="background:var(--wind);"></span>Stabilität</div>
+          <div class="tri-label-row"><span class="tri-dot" style="background:var(--solar);"></span>Wirtschaftlichk.</div>
+        </div>
+      </div>
+      <div class="score-right">
+        <div>
+          <div class="score-label">Gesamtscore</div>
+          <div class="score-total-row">
+            <div class="score-number" style="color:${deck.length > 0 ? totalColor : 'var(--text-muted)'};">${deck.length > 0 ? scores.total : '–'}</div>
+            <div class="score-denom">/100</div>
+          </div>
+        </div>
+        <div class="tri-bars">
+          <div class="tri-bar-row">
+            <div class="tri-bar-name">Nachh.</div>
+            <div class="tri-track"><div class="tri-fill" style="width:${scores.nachhaltigkeit}%; background:var(--growth);"></div></div>
+            <div class="tri-bar-val" style="color:var(--growth);">${scores.nachhaltigkeit}</div>
+          </div>
+          <div class="tri-bar-row">
+            <div class="tri-bar-name">Stab.</div>
+            <div class="tri-track"><div class="tri-fill" style="width:${scores.stabilitaet}%; background:var(--wind);"></div></div>
+            <div class="tri-bar-val" style="color:var(--wind);">${scores.stabilitaet}</div>
+          </div>
+          <div class="tri-bar-row">
+            <div class="tri-bar-name">Wirt.</div>
+            <div class="tri-track"><div class="tri-fill" style="width:${scores.wirtschaftlichkeit}%; background:var(--solar);"></div></div>
+            <div class="tri-bar-val" style="color:var(--solar);">${scores.wirtschaftlichkeit}</div>
+          </div>
+        </div>
+        <div class="deck-count">${deck.length} / ${MAX_DECK} Technologien · Karte tippen zum Entfernen</div>
+      </div>
+    </div>
+
+    <div class="deck-section">
+      <div class="section-header">
+        <div class="section-eyebrow">Dein Energiemix</div>
+      </div>
+      <div class="deck-slots">${slotsHtml}</div>
+    </div>
+
+    <div class="warnings-area">${warningsHtml}</div>
+
+    ${cardsHtml}
+
+    <div class="info-box" style="margin-top:32px;">
+      <div class="info-box-title">Datenquellen</div>
+      <p>
+        Alle Kennzahlen basieren auf dem <strong>Spickzettel Energiewende</strong> sowie wissenschaftlichen Quellen:
+        <strong>LCOE</strong>: Fraunhofer ISE Juli 2024.
+        <strong>CO₂ Lifecycle</strong>: IPCC AR5 Medianwerte (gCO₂eq/kWh).
+        <strong>Leistung & Verfügbarkeit</strong>: Spickzettel (Praxiswerte).
+        Das Scoring bildet das <strong>Energie-Trilemma</strong> ab: Nachhaltigkeit (40 %), Stabilität (35 %), Wirtschaftlichkeit (25 %) – plus Boni für Diversität und Speicherabsicherung.
+      </p>
+      <p class="src">Fraunhofer ISE (2024): Stromgestehungskosten; IPCC (2014): AR5 WGIII Annex III; Spickzettel Energiewende</p>
+    </div>
+
+    <div class="footer">
+      Basierend auf dem Spickzettel Energiewende<br>
+      <a href="https://www.ise.fraunhofer.de" target="_blank">Fraunhofer ISE</a> &nbsp;·&nbsp;
+      <a href="https://www.ipcc.ch" target="_blank">IPCC</a> &nbsp;·&nbsp;
+      <a href="https://www.umweltbundesamt.de" target="_blank">UBA</a>
+    </div>
+  `;
+}
+
+render();
+</script>
+</body>
+</html>
